@@ -4,9 +4,9 @@
 #include <fakemeta>
 #include <fvault>
 
-new const PLUGIN[] = "";
-new const VERSION[] = "";
-new const AUTHOR[] = "Supra.";
+new const PLUGIN[] = "SkinRendszer";
+new const VERSION[] = "1.0";
+new const AUTHOR[] = "Star:.";
 
 new Pont[33], Csomag[33];
 
