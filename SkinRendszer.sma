@@ -8,12 +8,13 @@ new const PLUGIN[] = "SkinRendszer";
 new const VERSION[] = "1.0";
 new const AUTHOR[] = "Star:.";
 
-new Pont[33], Csomag[33];
+new Pont[33], Csomag[33];//Egyeb
 
-new const Prefix[] = "[eMp.#]";
-new const File[] = "SknRendszer]";
-new const Chat[][] = { "say /menu", "say /skin", "say /skinek", "say /pontok" };
+new const Prefix[] = "[Prefix]";//Prefix
+new const File[] = "SknRendszer]";//Mentes
+new const Chat[][] = { "say /menu", "say /skin", "say /skinek", "say /pontok" };//Chat Parancsok
 
+/*Skin Ut irany*/
 new const Fegyverek[32][] =
 {
 	/*rozsdás csomag*/
@@ -69,11 +70,11 @@ public plugin_init() {
 	register_plugin(PLUGIN, VERSION, AUTHOR);
 	
 	for(new i;i < sizeof(Chat); i++)
-		register_clcmd(Chat[i], "Skinek");
+		register_clcmd(Chat[i], "Skinek");//Chat Parancsok
 	
-	register_clcmd("say /add", "addolas");
-	register_event("DeathMsg", "Halal", "a");
-	register_event("CurWeapon", "FegyverValtas", "be", "1=1");
+	register_clcmd("say /add", "addolas");//Addolas
+	register_event("DeathMsg", "Halal", "a");//Halal Event
+	register_event("CurWeapon", "FegyverValtas", "be", "1=1");//FegyverValtas Event
 }
 public addolas(id) 
 {
