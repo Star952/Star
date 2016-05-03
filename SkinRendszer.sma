@@ -6,7 +6,7 @@
 
 new const PLUGIN[] = "SkinRendszer";
 new const VERSION[] = "1.0";
-new const AUTHOR[] = "Star:.";
+new const AUTHOR[] = "Supra:.";
 
 new Pont[33], Csomag[33];//Egyeb
 
