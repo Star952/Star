@@ -2,7 +2,7 @@
 
 new const g_Plugin[] = {"FragVerseny 1.0"};
 new const g_Version[] = {"1.0"};
-new const g_Author[] = {"Star:."};
+new const g_Author[] = {"Supra:."};
 
 new g_FOlesek[33], g_Nyeremeny[33];
 new const Prefix[] = {"FragVerseny"};
