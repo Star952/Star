@@ -8,7 +8,7 @@
 #include <fvault>
 
 new const PLUGIN[] = "SkinRendszer 1.0.2";
-new const VERSION[] = "1.0.2";
+new const VERSION[] = "1.0.3";
 new const AUTHOR[] = "Star Régi Nevén Supra:.";
 
 new Pont[33], Csomag[33];//Egyeb
@@ -21,8 +21,15 @@ new const Chat[][] = { "say /menu", "say /skin", "say /skinek", "say /pontok" };
 new const KreditCsomag[] = "models/emp_skin/kredit.mdl";//News
 new const SuperKnifeMdl[] = "models/emp_skin/SuperKnife.mdl"//News
 
+/*
+Ujitasok:
+1.VipRendszer jelenleg 508 ft ert
+2.Kredit Rendszer
+3.Kreditert lehet venni SuperKnife-t 340 Sebesseg-el
+*/
+
 /*Skin Ut irany*/
-new const Fegyverek[32][] =
+new const Fegyverek[][] =
 {
 	/*rozsdás csomag*/
 	"models/emp_skin/rozsdas/v_ak47.mdl",
@@ -70,7 +77,13 @@ new const Fegyverek[32][] =
 	"models/emp_skin/star/v_ak47.mdl",
 	"models/emp_skin/star/v_m4a1.mdl",
 	"models/emp_skin/star/v_awp.mdl",
-	"models/emp_skin/star/v_deagle.mdl"
+	"models/emp_skin/star/v_deagle.mdl",
+	
+	/*Vip Csomag*/
+	"models/emp_skin/vip/v_ak47.mdl",
+	"models/emp_skin/vip/v_m4a1.mdl",
+	"models/emp_skin/vip/v_awp.mdl",
+	"models/emp_skin/vip/v_deagle.mdl"
 };
 
 public plugin_init() {
@@ -163,6 +176,15 @@ public FegyverValtas(id)
 		set_user_maxspeed(id, Float:350);
 		set_pev(id, pev_viewmodel2, SuperKnifeMdl);
 	}
+	
+	/*Vip Csomag*/
+	if(Csomag[id] == 9)
+	{
+		if(Gun == CSW_AK47) set_pev(id, pev_viewmodel2, Fegyverek[32]);
+		if(Gun == CSW_M4A1) set_pev(id, pev_viewmodel2, Fegyverek[33]);
+		if(Gun == CSW_AWP) set_pev(id, pev_viewmodel2, Fegyverek[34]);
+		if(Gun == CSW_DEAGLE) set_pev(id, pev_viewmodel2, Fegyverek[35]);
+	}
 }
 public Halal()
 {
@@ -247,7 +269,7 @@ public logevent_round_start()
 public Skinek(id)
 {
 	new cim[121];
-	format(cim, charsmax(cim), "\reMp.# \w| \yFõmenü\r* \dPont: %d", Pont[id]);
+	format(cim, charsmax(cim), "\reMp.# \w| \yFõmenü\r* \dPont: %d \y| \dKredit: %d", Pont[id], Kredit[id]);
 	new menu = menu_create(cim, "Skin_h");
 	
 	menu_additem(menu, "\wAlap Csomag", "0", 0);
@@ -260,6 +282,7 @@ public Skinek(id)
 	menu_additem(menu, Pont[id] >= 1050 ? "\wUltra Csomag \r[\wMegszerezve\r]":"\wUltra Csomag \r[\w1050 Pont\r]", "7", 0);
 	menu_additem(menu, Pont[id] >= 1200 ? "\wStar Csomag \r[\wMegszerezve\r]":"\wStar Csomag \r[\w1200 Pont\r]", "8", 0);
 	menu_additem(menu, Kredit[id] >= 500 ? "\wKnife Skin \r[\wAktiv\r] \r- \d(+ \y340 \dSpeed)":"\wKnife Skin \r[\w500 Kredit\r] ] \r- \d(+ \y340 \dSpeed)", "9", 0);
+	menu_additem(menu, get_user_flags(id) & ADMIN_LEVEL_C ? "\wVip Csomag\r[\wAktiv\r]":"\wVip Csomag \r[\w508 ft\r]", "10", 0);
 	
 	menu_setprop(menu, MPROP_EXIT, MEXIT_ALL);
 	menu_setprop(menu, MPROP_BACKNAME, "Vissza");
@@ -366,6 +389,15 @@ public Skin_h(id, menu, item)
 				client_printcolor(id, "!g%s !t» !nSikeresen Kiválasztodtad.", Prefix);
 			}
 			else client_printcolor(id, "!g%s !t» !nNincs elég kredited.", Prefix);
+		}
+		case 10:
+		{
+			if(get_user_flags(id) & ADMIN_LEVEL_C)
+			{
+				Csomag[id] = 9;
+				client_printcolor(id, "!g%s !t» !nSikeresen Kiválasztodtad.", Prefix);
+			}
+			else client_printcolor(id, "!g%s !t» !nNem vagy !gVip!n!", Prefix);
 		}
 	}
 }
