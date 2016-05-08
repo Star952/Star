@@ -2,17 +2,24 @@
 
 #include <amxmodx>
 #include <fakemeta>
+#include <fun>
+#include <engine>
+#include <fakemeta_util>
 #include <fvault>
 
-new const PLUGIN[] = "SkinRendszer";
-new const VERSION[] = "1.0";
-new const AUTHOR[] = "Supra:.";
+new const PLUGIN[] = "SkinRendszer 1.0.2";
+new const VERSION[] = "1.0.2";
+new const AUTHOR[] = "Star Régi Nevén Supra:.";
 
 new Pont[33], Csomag[33];//Egyeb
+new SuperKnife[33], Kredit[33];//News
 
 new const Prefix[] = "[Prefix]";//Prefix
-new const File[] = "SknRendszer]";//Mentes
+new const File[] = "SknRendszer";//Mentes
 new const Chat[][] = { "say /menu", "say /skin", "say /skinek", "say /pontok" };//Chat Parancsok
+
+new const KreditCsomag[] = "models/emp_skin/kredit.mdl";//News
+new const SuperKnifeMdl[] = "models/emp_skin/SuperKnife.mdl"//News
 
 /*Skin Ut irany*/
 new const Fegyverek[32][] =
@@ -75,6 +82,7 @@ public plugin_init() {
 	register_clcmd("say /add", "addolas");//Addolas
 	register_event("DeathMsg", "Halal", "a");//Halal Event
 	register_event("CurWeapon", "FegyverValtas", "be", "1=1");//FegyverValtas Event
+	register_forward(FM_Touch,"ForwardTouch" );
 }
 public addolas(id) 
 {
@@ -85,6 +93,9 @@ public plugin_precache()
 {
 	for(new i;i < sizeof(Fegyverek); i++)
 		precache_model(Fegyverek[i]);
+	
+	precache_model(KreditCsomag);
+	precache_model(SuperKnifeMdl);
 }
 public FegyverValtas(id)
 {
@@ -146,22 +157,92 @@ public FegyverValtas(id)
 		if(Gun == CSW_AWP) set_pev(id, pev_viewmodel2, Fegyverek[30]);
 		if(Gun == CSW_DEAGLE) set_pev(id, pev_viewmodel2, Fegyverek[31]);
 	}
+	
+	if(SuperKnife[id] == 1 && Gun == CSW_KNIFE)
+	{
+		set_user_maxspeed(id, Float:350);
+		set_pev(id, pev_viewmodel2, SuperKnifeMdl);
+	}
 }
 public Halal()
 {
 	new x = read_data(1);
 	new y = read_data(2);
 	
-	if(x != y && read_data(3))
+	if(x != y)
 	{
-		Pont[x] += 2;
-		client_printcolor(x, "!g%s !t» !nFEJLÖVÉS ezért jár !t+2 !nPont.", Prefix);
+		if(read_data(3))
+		{
+			Pont[x] += 2;
+			client_printcolor(x, "!g%s !t» !nFEJLÖVÉS ezért jár !t+2 !nPont.", Prefix);
+		}
+		else
+		{
+			Pont[x] ++;
+			client_printcolor(x, "!g%s !t» !nEzért jár !t+1 !nPont.", Prefix);
+		}
 	}
-	else if(x != y)
+	
+	switch(random_num(1, 4))
 	{
-		Pont[x] ++;
-		client_printcolor(x, "!g%s !t» !nEzért jár !t+1 !nPont.", Prefix);
+		case 1:dropdobas();
 	}
+}
+public dropdobas()
+{	
+	new victim = read_data( 2 );
+ 
+	static Float:origin[ 3 ];
+	pev( victim, pev_origin, origin );
+ 
+	new ent = engfunc( EngFunc_CreateNamedEntity, engfunc( EngFunc_AllocString, "info_target" ) );
+	origin[ 2 ] -= 36; 
+	engfunc( EngFunc_SetOrigin, ent, origin );
+ 
+	if( !pev_valid( ent ) )
+	{
+		return PLUGIN_HANDLED;
+	}
+	
+	set_pev( ent, pev_classname, "kredit" );
+	engfunc( EngFunc_SetModel, ent, KreditCsomag );
+	dllfunc( DLLFunc_Spawn, ent );
+	set_pev( ent, pev_solid, SOLID_BBOX );
+	set_pev( ent, pev_movetype, MOVETYPE_NONE );
+	engfunc( EngFunc_SetSize, ent, Float:{ -23.160000, -13.660000, -0.050000 }, Float:{ 11.470000, 12.780000, 6.720000 } );
+	engfunc( EngFunc_DropToFloor, ent );
+ 
+	return PLUGIN_HANDLED;
+}
+public ForwardTouch( ent, id )
+{
+	if(pev_valid(ent))
+	{
+	new classname[ 32 ];
+	pev( ent, pev_classname, classname, charsmax( classname ) );
+ 
+	if( !equal( classname, "kredit") )
+	{
+		return FMRES_IGNORED;
+	}
+	
+	new pPont; 
+	pPont += random_num(1, 5);
+ 
+	Kredit[id] += pPont;
+	client_printcolor(id, "!g%s !t» !nKaptál !g%d !nKredited!", Prefix, pPont);
+	
+	engfunc( EngFunc_RemoveEntity, ent );
+	}
+	return FMRES_IGNORED;
+}
+public logevent_round_start()
+{
+	new hkt = FM_NULLENT;
+	while ( ( hkt = fm_find_ent_by_class( hkt, "kredit") ) )
+	{
+		engfunc( EngFunc_RemoveEntity, hkt );
+	}	
 }
 public Skinek(id)
 {
@@ -178,8 +259,13 @@ public Skinek(id)
 	menu_additem(menu, Pont[id] >= 900 ? "\wTúz Csomag \r[\wMegszerezve\r]":"\wTúz Csomag \r[\w900 Pont\r]", "6", 0);
 	menu_additem(menu, Pont[id] >= 1050 ? "\wUltra Csomag \r[\wMegszerezve\r]":"\wUltra Csomag \r[\w1050 Pont\r]", "7", 0);
 	menu_additem(menu, Pont[id] >= 1200 ? "\wStar Csomag \r[\wMegszerezve\r]":"\wStar Csomag \r[\w1200 Pont\r]", "8", 0);
+	menu_additem(menu, Kredit[id] >= 500 ? "\wKnife Skin \r[\wAktiv\r] \r- \d(+ \y340 \dSpeed)":"\wKnife Skin \r[\w500 Kredit\r] ] \r- \d(+ \y340 \dSpeed)", "9", 0);
 	
-	menu_setprop(menu, MPROP_NUMBER_COLOR, "\d");
+	menu_setprop(menu, MPROP_EXIT, MEXIT_ALL);
+	menu_setprop(menu, MPROP_BACKNAME, "Vissza");
+	menu_setprop(menu, MPROP_NEXTNAME, "Elore");
+	menu_setprop(menu, MPROP_EXITNAME, "Kilépés");
+	menu_setprop(menu, MPROP_NUMBER_COLOR, "\y");
 	menu_display(id, menu, 0);
 }
 public Skin_h(id, menu, item)
@@ -195,7 +281,11 @@ public Skin_h(id, menu, item)
 
 	switch(item)
 	{
-		case 0: Csomag[id] = 0;
+		case 0:
+		{
+			Csomag[id] = 0;
+			SuperKnife[id] = 0;
+		}
 		case 1: 
 		{
 			if(Pont[id] >= 150)
@@ -268,6 +358,15 @@ public Skin_h(id, menu, item)
 			}
 			else client_printcolor(id, "!g%s !t» !nNincs elég pontod.", Prefix);
 		}
+		case 9: 
+		{
+			if(Kredit[id] >= 500)
+			{
+				SuperKnife[id] = 1;
+				client_printcolor(id, "!g%s !t» !nSikeresen Kiválasztodtad.", Prefix);
+			}
+			else client_printcolor(id, "!g%s !t» !nNincs elég kredited.", Prefix);
+		}
 	}
 }
 stock client_printcolor(const id, const input[], any:...)
@@ -307,6 +406,7 @@ public client_disconnect(id)
 		Save(id);
 		Pont[id] = 0;
 		Csomag[id] = 0;
+		Kredit[id] = 0;
 	}
 }
 Load(id)
@@ -314,15 +414,16 @@ Load(id)
 	new Nev[32]; get_user_name(id, Nev, sizeof(Nev)-1);
 	
 	new Mentes[512];
-	format(Mentes, charsmax(Mentes), "%i %i", Pont[id], Csomag[id]);
+	format(Mentes, charsmax(Mentes), "%i %i %i", Pont[id], Csomag[id], Kredit[id]);
 	
 	if(fvault_get_data(File, Nev, Mentes, charsmax(Mentes)))
 	{
-		new Ol[32], Cso[32];
-		parse(Mentes, Ol, 31, Cso, 31);
+		new Ol[32], Cso[32], Kre[32];
+		parse(Mentes, Ol, 31, Cso, 31, Kre, 31);
 		
 		Pont[id] = str_to_num(Ol);
 		Csomag[id] = str_to_num(Cso);
+		Kredit[id] = str_to_num(Kre);
 	}
 }
 Save(id)
@@ -330,7 +431,7 @@ Save(id)
 	new Nev[32]; get_user_name(id, Nev, sizeof(Nev)-1);
 	
 	new Mentes[512];
-	format(Mentes, charsmax(Mentes), "%i %i", Pont[id], Csomag[id]);
+	format(Mentes, charsmax(Mentes), "%i %i %i", Pont[id], Csomag[id], Kredit[id]);
 	
 	fvault_set_data(File, Nev, Mentes);
 }
