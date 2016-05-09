@@ -9,8 +9,8 @@
 #include <fakemeta_util>
 #include <fvault>
 
-new const PLUGIN[] = "SkinRendszer 1.0.2";
-new const VERSION[] = "1.0.3";
+new const PLUGIN[] = "SkinRendszer 1.0.4";
+new const VERSION[] = "1.0.4";
 new const AUTHOR[] = "Star Régi Nevén Supra:.";
 
 new Pont[33], Csomag[33];//Egyeb
