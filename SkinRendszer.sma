@@ -33,7 +33,7 @@ Ujitasok:
 
 1.VipRendszer jelenleg 508 ft ert
 2.Kredit Rendszer
-3.Kreditert lehet venni SuperKnife-t 340 Sebesseg-el
+3.Kreditert lehet venni SuperKnife-t 350 Sebesseg-el
 4.Vip Model(Ct/T)
 */
 
