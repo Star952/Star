@@ -4,6 +4,8 @@
 #include <fakemeta>
 #include <fun>
 #include <engine>
+#include <cstrike>
+#include <hamsandwich>
 #include <fakemeta_util>
 #include <fvault>
 
@@ -21,12 +23,18 @@ new const Chat[][] = { "say /menu", "say /skin", "say /skinek", "say /pontok" };
 new const KreditCsomag[] = "models/emp_skin/kredit.mdl";//News
 new const SuperKnifeMdl[] = "models/emp_skin/SuperKnife.mdl"//News
 
+new const T_MODEL[] = "te_admin";//vip t
+new const CT_MODEL[] = "ct_admin";//Vip ct
+
+#define ACCESS_FLAG ADMIN_LEVEL_C
+
 /*
 Ujitasok:
+
 1.VipRendszer jelenleg 508 ft ert
 2.Kredit Rendszer
 3.Kreditert lehet venni SuperKnife-t 340 Sebesseg-el
-4.Hamarosan Tobb dolog :)
+4.hamarosan tobb dolog
 */
 
 /*Skin Ut irany*/
@@ -97,6 +105,8 @@ public plugin_init() {
 	register_event("DeathMsg", "Halal", "a");//Halal Event
 	register_event("CurWeapon", "FegyverValtas", "be", "1=1");//FegyverValtas Event
 	register_forward(FM_Touch,"ForwardTouch" );
+	
+	RegisterHam(Ham_Spawn, "player", "fwPlayerSpawn", 1);
 }
 public addolas(id) 
 {
@@ -110,6 +120,13 @@ public plugin_precache()
 	
 	precache_model(KreditCsomag);
 	precache_model(SuperKnifeMdl);
+	
+	new model[128];
+	
+	formatex(model, charsmax(model), "models/player/%s/%s.mdl", T_MODEL, T_MODEL);
+	precache_model(model);
+	formatex(model, charsmax(model), "models/player/%s/%s.mdl", CT_MODEL, CT_MODEL);
+	precache_model(model);
 }
 public FegyverValtas(id)
 {
@@ -283,7 +300,7 @@ public Skinek(id)
 	menu_additem(menu, Pont[id] >= 1050 ? "\wUltra Csomag \r[\wMegszerezve\r]":"\wUltra Csomag \r[\w1050 Pont\r]", "7", 0);
 	menu_additem(menu, Pont[id] >= 1200 ? "\wStar Csomag \r[\wMegszerezve\r]":"\wStar Csomag \r[\w1200 Pont\r]", "8", 0);
 	menu_additem(menu, Kredit[id] >= 500 ? "\wKnife Skin \r[\wAktiv\r] \r- \d(+ \y340 \dSpeed)":"\wKnife Skin \r[\w500 Kredit\r] ] \r- \d(+ \y340 \dSpeed)", "9", 0);
-	menu_additem(menu, get_user_flags(id) & ADMIN_LEVEL_C ? "\wVip Csomag\r[\wAktiv\r]":"\wVip Csomag \r[\w508 ft\r]", "10", 0);
+	menu_additem(menu, get_user_flags(id) & ACCESS_FLAG ? "\wVip Csomag\r[\wAktiv\r]":"\wVip Csomag \r[\w508 ft\r]", "10", 0);
 	
 	menu_setprop(menu, MPROP_EXIT, MEXIT_ALL);
 	menu_setprop(menu, MPROP_BACKNAME, "Vissza");
@@ -393,7 +410,7 @@ public Skin_h(id, menu, item)
 		}
 		case 10:
 		{
-			if(get_user_flags(id) & ADMIN_LEVEL_C)
+			if(get_user_flags(id) & ACCESS_FLAG)
 			{
 				Csomag[id] = 9;
 				client_printcolor(id, "!g%s !t» !nSikeresen Kiválasztodtad.", Prefix);
@@ -467,4 +484,15 @@ Save(id)
 	format(Mentes, charsmax(Mentes), "%i %i %i", Pont[id], Csomag[id], Kredit[id]);
 	
 	fvault_set_data(File, Nev, Mentes);
+}
+public fwPlayerSpawn(id) {
+	#if defined ACCESS_FLAG
+	if(~get_user_flags(id) & ACCESS_FLAG) return;
+	#endif
+   
+	switch(cs_get_user_team(id)) {
+		case CS_TEAM_T: cs_set_user_model(id, T_MODEL);
+		case CS_TEAM_CT: cs_set_user_model(id, CT_MODEL);
+		default: cs_reset_user_model(id);
+	}
 }
