@@ -10,7 +10,7 @@
 	tessek egy vip model :D.
 */
 
-//#define JOG ADMIN_LEVEL_C
+#define JOG ADMIN_LEVEL_C
 
 public plugin_init() {
 	register_plugin("Vip Model", "1.0", "Supra:.");
